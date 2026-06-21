@@ -27,7 +27,12 @@ _A living summary of where the project stands. Edit this section in place as thi
 
 - Repository initialized with a README and project documentation.
 - `AGENTS.md` and `MEMORY.md` added to define agent behavior and persistent memory.
-- No study content (topic notes / practice questions) added yet.
+- Three source reviewer PDFs uploaded: `AZ-900 Fundamentals Reviewer.pdf` (P1),
+  `AZ900_Practice_Exam_With_Answers.pdf` (P2), and
+  `RADOVAN_AZ-900_ Microsoft Azure Fundamentals Reviewer.pdf` (P3).
+- `AZ-900_Kahoot_Import.xlsx` generated from the 3 PDFs: a Kahoot-ready question
+  bank (219 items) classified into Multiple Choice, True/False, and Type-Answer.
+- `build_kahoot_xlsx.py` kept as the reproducible generator for the workbook.
 
 ---
 
@@ -63,6 +68,30 @@ _Append-only. Add a new entry below for each session. Newest entries go at the b
   "Current State" and "Open Items" sections may be edited in place.
 - **Next steps:** Begin adding AZ-900 study notes; agents should append a new
   Session Log entry after each future conversation.
+
+### 2026-06-21 — Built Kahoot question bank from the 3 reviewer PDFs
+
+- **User request:** Analyze the 3 PDF reviewers, extract all data in extreme
+  detail, and put it into an .xlsx for importing into Kahoot. Classify items
+  into multiple choice (4 lettered options), True/False, and type-answer use
+  cases (user types the answers). Flag redundant questions. Do NOT hallucinate
+  or invent questions — everything must come strictly from the PDFs.
+- **Context found:** Three PDFs were pushed to `main` (P1 fundamentals notes,
+  P2 practice exam Q1–Q36 with answers, P3 RADOVAN domain + practice questions).
+  Extracted text from all three with PyMuPDF (no OCR needed).
+- **Actions taken:**
+  - Wrote `build_kahoot_xlsx.py` and generated `AZ-900_Kahoot_Import.xlsx`.
+  - Workbook has 6 sheets: READ ME, Multiple Choice (5), True or False (36),
+    Use Cases / Type Answer (178), Redundant Questions (25), Source Map.
+  - 219 total quiz items, all cited back to a specific PDF; no invented
+    distractors or facts. Kahoot char limits respected (0 violations).
+- **Decisions:** Multiple choice uses ONLY options that exist in the PDFs (so
+  it is intentionally small — 5 items); all Yes/No statements from P2 became
+  True/False; scenarios/definitions/matching became Type-Answer with the
+  PDF-sourced answer provided plus a suggested <=20-char short answer.
+- **Next steps:** User to import tabs into Kahoot (MC + T/F via spreadsheet
+  importer; Type-Answer added manually). Could optionally split the workbook
+  per Kahoot template if the importer requires the exact official layout.
 
 <!--
 TEMPLATE — copy for each new session:
