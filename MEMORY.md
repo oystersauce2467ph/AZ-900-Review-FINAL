@@ -121,6 +121,23 @@ _Append-only. Add a new entry below for each session. Newest entries go at the b
 - **Next steps:** User imports each file as its own kahoot via
   "Import questions from spreadsheet".
 
+### 2026-06-21 — Split multiple-choice into 5 files of 40 (free-plan time limit)
+
+- **User request:** On the Kahoot free plan a live session must finish in under
+  ~15 minutes, so split all Multiple Choice content into 5 quiz files of 40
+  questions each, as a continuation until all are covered.
+- **Actions taken:**
+  - Extended `build_kahoot_xlsx.py` with `build_mc_split_files(40)`.
+  - Generated `AZ-900_Kahoot_MC_Part1_of_5.xlsx` ... `Part5_of_5.xlsx`
+    (40/40/40/40/23 = 183 questions). Same Kahoot template + option rotation
+    as the full file.
+  - Verified the 5 splits equal the full 183-question set exactly (order
+    preserved, no duplicates/gaps, 0 validation issues).
+- **Decisions:** Parts 1-4 have 40 questions; Part 5 has the remaining 23.
+  Kept the combined `AZ-900_Kahoot_MultipleChoice.xlsx` as the master copy.
+- **Next steps:** User imports each Part file as a separate kahoot, played in
+  sequence.
+
 <!--
 TEMPLATE — copy for each new session:
 
