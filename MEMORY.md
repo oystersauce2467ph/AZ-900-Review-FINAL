@@ -180,6 +180,16 @@ _Append-only. Add a new entry below for each session. Newest entries go at the b
 - **Next steps:** User imports `AZ-900_Kahoot_YesNo.xlsx` as a kahoot and drags
   in the YesNo_Qnn.png images (or uses the guide's search keywords).
 
+### 2026-06-21 — Zip the kahoot images for one-click download
+
+- **User request:** Compress the kahoot_images folder into a single zip to avoid
+  downloading each image/folder individually.
+- **Actions taken:** Created `AZ-900_Kahoot_Images.zip` (4.6 MB) containing all
+  219 images (Part1-5 = 183 MC images + YesNo = 36), preserving the folder
+  structure. Committed to the repo so it can be downloaded as one file.
+- **Next steps:** Download the zip from the repo, extract, and drag images into
+  Kahoot. Re-run `zip -r AZ-900_Kahoot_Images.zip kahoot_images` if images change.
+
 <!--
 TEMPLATE — copy for each new session:
 
