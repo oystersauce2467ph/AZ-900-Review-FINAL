@@ -30,9 +30,13 @@ _A living summary of where the project stands. Edit this section in place as thi
 - Three source reviewer PDFs uploaded: `AZ-900 Fundamentals Reviewer.pdf` (P1),
   `AZ900_Practice_Exam_With_Answers.pdf` (P2), and
   `RADOVAN_AZ-900_ Microsoft Azure Fundamentals Reviewer.pdf` (P3).
-- `AZ-900_Kahoot_Import.xlsx` generated from the 3 PDFs: a Kahoot-ready question
-  bank (219 items) classified into Multiple Choice, True/False, and Type-Answer.
-- `build_kahoot_xlsx.py` kept as the reproducible generator for the workbook.
+- `AZ-900_Kahoot_MultipleChoice.xlsx` (183 q) and `AZ-900_Kahoot_TrueFalse.xlsx`
+  (36 q): single-sheet, Kahoot-template files that import cleanly on the free plan.
+  Replaced the earlier `AZ-900_Kahoot_Import.xlsx` whose Type-Answer sheet Kahoot
+  could not import (free plan + spreadsheet importer only accept quiz questions).
+- `AZ-900_Reference.xlsx`: full PDF answers, sources, original use-case answers,
+  and the redundancy report (for study and verification).
+- `build_kahoot_xlsx.py` kept as the reproducible generator for all three files.
 
 ---
 
@@ -92,6 +96,30 @@ _Append-only. Add a new entry below for each session. Newest entries go at the b
 - **Next steps:** User to import tabs into Kahoot (MC + T/F via spreadsheet
   importer; Type-Answer added manually). Could optionally split the workbook
   per Kahoot template if the importer requires the exact official layout.
+
+### 2026-06-21 — Fix: Type-Answer questions would not import into Kahoot
+
+- **User request:** When importing the .xlsx into Kahoot (free plan), none of the
+  Use Cases / Type-Answer questions were recognized or added. Fix so all
+  questions and answers display correctly in Kahoot.
+- **Root cause (verified via Kahoot support docs):** Kahoot's spreadsheet
+  importer accepts ONLY multiple-choice (quiz) questions, and "Type Answer" is a
+  paid feature — so all 178 type-answer rows were ignored.
+- **Actions taken:**
+  - Rewrote `build_kahoot_xlsx.py` to convert every use case into a
+    multiple-choice question. Correct option = exact PDF answer; distractors =
+    OTHER real Azure terms from the same PDFs (no invented facts).
+  - Produced two single-sheet, Kahoot-template import files:
+    `AZ-900_Kahoot_MultipleChoice.xlsx` (183 q) and
+    `AZ-900_Kahoot_TrueFalse.xlsx` (36 q) — 219 importable items total.
+  - Added `AZ-900_Reference.xlsx` (full answers, sources, original use-case
+    answers, redundancy report). Removed the old broken `AZ-900_Kahoot_Import.xlsx`.
+  - Enforced importer limits: question ≤95 chars, answer ≤60 chars, time in
+    {5,10,20,30,60,120}; correct-answer position is rotated so it is not always A.
+- **Decisions:** Split into two files so each kahoot stays under the 200-question
+  limit; distractors are real PDF terms, never fabricated facts.
+- **Next steps:** User imports each file as its own kahoot via
+  "Import questions from spreadsheet".
 
 <!--
 TEMPLATE — copy for each new session:
