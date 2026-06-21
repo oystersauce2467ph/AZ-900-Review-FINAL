@@ -138,6 +138,28 @@ _Append-only. Add a new entry below for each session. Newest entries go at the b
 - **Next steps:** User imports each Part file as a separate kahoot, played in
   sequence.
 
+### 2026-06-21 — Per-question images for the 5 MC files
+
+- **User request:** Add an appropriate photo per question slide (relating to the
+  answer) for the 5 Multiple Choice Kahoot files.
+- **Key finding (verified via Kahoot docs):** Kahoot's spreadsheet importer
+  CANNOT carry images — there is no image column and embedded images are ignored.
+  Images can only be added in the editor (upload or built-in image library).
+- **Actions taken:**
+  - Added `generate_kahoot_images.py`, which generates one PNG per MC question
+    (183 total) themed to the question's SUBJECT AREA (Storage, Networking,
+    Security, etc.) using drawn icons — generated, so no licensing issues, and
+    it doesn't spoil the answer on screen.
+  - Output organized as `kahoot_images/Part1..5/PartX_Qnn.png`, matching the
+    import file order 1:1.
+  - Added `AZ-900_Kahoot_Image_Guide.xlsx` (READ ME + 5 part sheets) mapping each
+    question to its image file AND a Kahoot image-library search keyword (so the
+    user can alternatively pick a real stock photo in the editor).
+- **Decisions:** Images reflect subject area, not the literal answer, to avoid
+  spoilers; user adds them via drag-drop (Option A) or Kahoot's library (Option B).
+- **Next steps:** User drags each PartX_Qnn.png into the matching question, or
+  uses the keyword to pick a library image.
+
 <!--
 TEMPLATE — copy for each new session:
 
