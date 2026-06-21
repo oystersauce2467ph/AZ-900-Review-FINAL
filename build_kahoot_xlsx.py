@@ -793,9 +793,53 @@ REDUNDANT = [
  ("SaaS example = Microsoft 365 Online", "P3 D1 Q4; P1 p1", "Keep one."),
 ]
 
+def build_mc_split_files(chunk_size=40):
+    """Split all multiple-choice questions into separate Kahoot quiz files of
+    `chunk_size` each, so each game finishes within a short live session on the
+    free plan. Files are numbered as a continuation (Part 1, Part 2, ...)."""
+    headers = ["Question", "Answer 1", "Answer 2", "Answer 3", "Answer 4",
+               "Time limit (sec)", "Correct answer(s)"]
+    total = len(MC)
+    nfiles = (total + chunk_size - 1) // chunk_size
+    made = []
+    for part in range(nfiles):
+        start = part * chunk_size
+        chunk = MC[start:start + chunk_size]
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Kahoot Quiz Import"
+        ws.append(headers)
+        style_header(ws, len(headers))
+        for local_idx, row in enumerate(chunk):
+            # keep the SAME deterministic rotation as the full file by using the
+            # question's global index, so a question's options look identical
+            # regardless of which split file it lands in
+            global_idx = start + local_idx
+            q, correct = row[0], row[1]
+            rest = [row[2], row[3], row[4]]
+            opts = [correct] + [o for o in rest if o is not None]
+            shift = global_idx % len(opts)
+            rotated = opts[shift:] + opts[:shift]
+            correct_pos = rotated.index(correct) + 1
+            padded = rotated + [None] * (4 - len(rotated))
+            ws.append([q] + padded[:4] + [MCTIME, str(correct_pos)])
+        widths(ws, [70, 30, 30, 30, 30, 14, 16])
+        for r in range(2, ws.max_row + 1):
+            for c in range(1, len(headers) + 1):
+                ws.cell(row=r, column=c).alignment = WRAP
+                ws.cell(row=r, column=c).border = BORDER
+            ws.cell(row=r, column=6).alignment = CENTER
+            ws.cell(row=r, column=7).alignment = CENTER
+        ws.freeze_panes = "A2"
+        fname = f"AZ-900_Kahoot_MC_Part{part + 1}_of_{nfiles}.xlsx"
+        wb.save(fname)
+        made.append((fname, len(chunk), start + 1, start + len(chunk)))
+    return made
+
 mc_err = build_mc_file()
 tf_err = build_tf_file()
 build_reference_file()
+split_files = build_mc_split_files(40)
 
 print("Multiple-choice questions :", len(MC))
 print("True/False questions      :", len(TF))
@@ -809,3 +853,8 @@ if errs:
         print("  ", e)
 else:
     print("OK - all questions <=95 chars and all answers <=60 chars.")
+
+print()
+print("Split multiple-choice files (40 questions each, as a continuation):")
+for fname, count, lo, hi in split_files:
+    print(f"  {fname}: {count} questions (overall #{lo}-{hi})")
