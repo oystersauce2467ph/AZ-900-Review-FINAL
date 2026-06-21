@@ -160,6 +160,26 @@ _Append-only. Add a new entry below for each session. Newest entries go at the b
 - **Next steps:** User drags each PartX_Qnn.png into the matching question, or
   uses the keyword to pick a library image.
 
+### 2026-06-21 — Convert True/False category to Yes/No + add its images
+
+- **User request:** For the True/False statements, choose Yes if true else No.
+  Replace True->Yes and False->No (rename the category to Yes/No). Also add a
+  photo per question slide for this category.
+- **Actions taken:**
+  - Updated `build_kahoot_xlsx.py` so the statements file uses answer options
+    "Yes"/"No" (Yes = statement true = option 1, No = false = option 2) and
+    saves as `AZ-900_Kahoot_YesNo.xlsx`. Removed the old
+    `AZ-900_Kahoot_TrueFalse.xlsx`. Updated the Reference workbook (READ ME +
+    "Yes-No (with source)" sheet).
+  - Extended `generate_kahoot_images.py` to also create 36 subject-area-themed
+    images at `kahoot_images/YesNo/YesNo_Qnn.png` and added a "Yes-No" sheet to
+    `AZ-900_Kahoot_Image_Guide.xlsx`.
+  - Verified: 36 Yes/No rows, options Yes/No, correct mapping 0 issues; 36 images.
+- **Decisions:** Statement wording is unchanged (only the answer options changed
+  from True/False to Yes/No); images follow the same subject-area approach as MC.
+- **Next steps:** User imports `AZ-900_Kahoot_YesNo.xlsx` as a kahoot and drags
+  in the YesNo_Qnn.png images (or uses the guide's search keywords).
+
 <!--
 TEMPLATE — copy for each new session:
 

@@ -31,6 +31,7 @@ sys.argv = ["bk"]
 bk = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(bk)
 MC = bk.MC
+TF = bk.TF
 
 W, H = 1280, 720
 FONT_PATH = "/usr/share/fonts/google-noto-vf/NotoSans[wght].ttf"
@@ -212,6 +213,18 @@ for part in range(nfiles):
         guide_rows.append((part+1, li+1, overall, q, ans, CATS[cat][2],
                            f"kahoot_images/Part{part+1}/{fname}", keyword(cat, ans)))
 
+# ---- Yes/No category images ----
+yn_rows = []  # (qno, statement, answer_yesno, cat_title, filename, keyword)
+yndir = os.path.join("kahoot_images", "YesNo")
+os.makedirs(yndir, exist_ok=True)
+for i, (stmt, ans, src) in enumerate(TF, start=1):
+    cat = classify(stmt, "")
+    fname = f"YesNo_Q{i:02d}.png"
+    footer = f"AZ-900 Review  -  Yes/No  -  Q{i}"
+    make_image(os.path.join(yndir, fname), cat, footer)
+    yn_rows.append((i, stmt, "Yes" if ans == "True" else "No", CATS[cat][2],
+                    f"kahoot_images/YesNo/{fname}", keyword(cat, "yes")))
+
 # ---- guide workbook ----
 HEAD_FILL = PatternFill("solid", fgColor="1F4E78")
 HEAD_FONT = Font(bold=True, color="FFFFFF")
@@ -239,6 +252,9 @@ for i, ln in enumerate([
     "",
     "Each generated image reflects the question's SUBJECT AREA (Storage, Networking, etc.) so it stays relevant",
     "without revealing the answer on screen. Images are generated (no third-party photos = no licensing issues).",
+    "",
+    "The 'Yes/No' sheet covers the Yes/No category (AZ-900_Kahoot_YesNo.xlsx); its images live in",
+    "kahoot_images/YesNo and are named YesNo_Qnn.png in the same order as that file.",
 ], start=2):
     ws0.cell(row=i, column=2, value=ln)
 ws0.sheet_view.showGridLines = False
@@ -262,12 +278,32 @@ for part in range(nfiles):
             ws.cell(row=rr, column=cc).border = BORDER
     ws.freeze_panes = "A2"
 
+# Yes/No category sheet
+ws = wb.create_sheet("Yes-No")
+headers = ["Q #", "Statement", "Answer (Yes/No)", "Subject area",
+           "Image file to drag in", "Kahoot image search keyword"]
+ws.append(headers)
+for c in range(1, len(headers)+1):
+    cell = ws.cell(row=1, column=c); cell.fill = HEAD_FILL; cell.font = HEAD_FONT
+    cell.alignment = Alignment(wrap_text=True, horizontal="center", vertical="center")
+    cell.border = BORDER
+for r in yn_rows:
+    ws.append(list(r))
+for i, w in enumerate([6, 70, 16, 18, 34, 30], start=1):
+    ws.column_dimensions[get_column_letter(i)].width = w
+for rr in range(2, ws.max_row+1):
+    for cc in range(1, len(headers)+1):
+        ws.cell(row=rr, column=cc).alignment = WRAP
+        ws.cell(row=rr, column=cc).border = BORDER
+ws.freeze_panes = "A2"
+
 wb.save("AZ-900_Kahoot_Image_Guide.xlsx")
 
 # report
 from collections import Counter
 catcount = Counter(classify(r[0], r[1]) for r in MC)
-print("Generated images:", len(guide_rows))
+print("Generated MC images:", len(guide_rows))
+print("Generated Yes/No images:", len(yn_rows))
 print("Per part:", Counter(r[0] for r in guide_rows))
-print("Subject-area distribution:", dict(catcount))
+print("Subject-area distribution (MC):", dict(catcount))
 print("Guide workbook: AZ-900_Kahoot_Image_Guide.xlsx")

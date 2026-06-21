@@ -19,7 +19,7 @@ IMPORTER RULES ENFORCED (per Kahoot support):
 
 OUTPUT (single-sheet files = unambiguous import; each well under the 200/kahoot cap):
   - AZ-900_Kahoot_MultipleChoice.xlsx   (all multiple-choice questions)
-  - AZ-900_Kahoot_TrueFalse.xlsx        (all true/false questions)
+  - AZ-900_Kahoot_YesNo.xlsx            (all Yes/No statements; Yes=true, No=false)
   - AZ-900_Reference.xlsx               (full PDF answers + sources + redundancy)
 """
 from openpyxl import Workbook
@@ -515,6 +515,8 @@ def build_mc_file():
     return errors
 
 def build_tf_file():
+    """Yes/No category: for each statement, 'Yes' = the statement is TRUE,
+    'No' = the statement is FALSE. (Replaces the old True/False wording.)"""
     wb = Workbook()
     ws = wb.active
     ws.title = "Kahoot Quiz Import"
@@ -524,10 +526,11 @@ def build_tf_file():
     style_header(ws, len(headers))
     errors = []
     for stmt, ans, src in TF:
+        # 'True' statement -> correct answer is Yes (option 1); 'False' -> No (option 2)
         correct_pos = "1" if ans == "True" else "2"
-        ws.append([stmt, "True", "False", None, None, TFTIME, correct_pos])
+        ws.append([stmt, "Yes", "No", None, None, TFTIME, correct_pos])
         if len(stmt) > 95:
-            errors.append(f"TF Q>{95} ({len(stmt)}): {stmt}")
+            errors.append(f"YesNo Q>{95} ({len(stmt)}): {stmt}")
     widths(ws, [80, 12, 12, 10, 10, 14, 16])
     for r in range(2, ws.max_row + 1):
         for c in range(1, len(headers) + 1):
@@ -536,7 +539,7 @@ def build_tf_file():
         ws.cell(row=r, column=6).alignment = CENTER
         ws.cell(row=r, column=7).alignment = CENTER
     ws.freeze_panes = "A2"
-    wb.save("AZ-900_Kahoot_TrueFalse.xlsx")
+    wb.save("AZ-900_Kahoot_YesNo.xlsx")
     return errors
 
 def build_reference_file():
@@ -557,16 +560,19 @@ def build_reference_file():
         "",
         "IMPORT THESE TWO FILES (each is one clean sheet in Kahoot's template format):",
         "  1. AZ-900_Kahoot_MultipleChoice.xlsx  -> import as one kahoot (multiple-choice questions).",
-        "  2. AZ-900_Kahoot_TrueFalse.xlsx       -> import as a second kahoot (True/False questions).",
+        "  2. AZ-900_Kahoot_YesNo.xlsx           -> import as a second kahoot (Yes/No statements).",
         "  Keeping them in two files keeps each kahoot under Kahoot's 200-question limit.",
         "",
         "HOW TO IMPORT:",
         "  Create a new kahoot > Add question > 'Import questions from spreadsheet' > upload the file.",
-        "  Correct answer column uses option NUMBERS (1-4). For True/False: 1 = True, 2 = False.",
+        "  Correct answer column uses option NUMBERS (1-4). For Yes/No: 1 = Yes, 2 = No.",
+        "",
+        "YES/NO CATEGORY: For each statement, choose Yes if it is TRUE, otherwise No.",
+        "  (This replaces the old True/False wording: Yes = True, No = False.)",
         "",
         "THIS REFERENCE WORKBOOK CONTAINS:",
         "  - 'MC (with source + answer)'  : every multiple-choice question, its correct answer, and the PDF source.",
-        "  - 'True-False (with source)'   : every True/False statement, the answer, and the PDF source.",
+        "  - 'Yes-No (with source)'       : every Yes/No statement, the answer, and the PDF source.",
         "  - 'Original Use-Case Answers'  : the open-ended answers exactly as stated in the PDFs (for study).",
         "  - 'Redundant Questions'        : duplicate concepts to avoid repeating.",
         "  - 'Source Map'                 : which PDF each block came from.",
@@ -596,13 +602,13 @@ def build_reference_file():
             ws.cell(row=r, column=c).alignment = WRAP
             ws.cell(row=r, column=c).border = BORDER
 
-    # TF reference
-    ws = wb.create_sheet("True-False (with source)")
-    hdr = ["#", "Statement", "Answer", "Source (PDF)"]
+    # Yes/No reference (Yes = statement is true, No = false)
+    ws = wb.create_sheet("Yes-No (with source)")
+    hdr = ["#", "Statement", "Answer (Yes/No)", "Source (PDF)"]
     ws.append(hdr); style_header(ws, len(hdr))
     for i, (stmt, ans, src) in enumerate(TF, start=1):
-        ws.append([i, stmt, ans, src])
-    widths(ws, [5, 80, 10, 14])
+        ws.append([i, stmt, "Yes" if ans == "True" else "No", src])
+    widths(ws, [5, 80, 14, 14])
     for r in range(2, ws.max_row + 1):
         for c in range(1, len(hdr) + 1):
             ws.cell(row=r, column=c).alignment = WRAP
@@ -842,7 +848,7 @@ build_reference_file()
 split_files = build_mc_split_files(40)
 
 print("Multiple-choice questions :", len(MC))
-print("True/False questions      :", len(TF))
+print("Yes/No questions          :", len(TF))
 print("TOTAL importable items    :", len(MC) + len(TF))
 print("Reference use-case rows   :", len(USECASES))
 print()
